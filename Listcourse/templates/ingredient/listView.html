@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-<div class="row" id="rowTop">
+<div class="row fullWidth" id="rowTop">
 {% for message in messages %}
         <div data-alert class="alert-box {{message.tags}} radius">
             {{message}}
@@ -10,129 +10,177 @@
         </div>
     {% endfor %}
 </div>
-<div class="row">
-    <h3>Liste des produits<h3>
-	<table>
-  <thead>
-    <tr>
-      <th width="200">Produit</th>
-      <th width="150">Sous-catégorie</th>
-      <th width="150">Catégorie</th>
-      <th width="50">Quantité</th>
-      <th width="50">Ajouter</th>
-    </tr>
-  </thead>
-    <tbody>
-    	{% for ingredient in ingredients %}
-            <tr>
-                  <td><a href="">{{ingredient.name}}</a></td>
-                  <td><a href="">{{ingredient.subCategory.name}}</a></td>
-                  <td><a href="">{{ingredient.subCategory.category.name}}</a></td>
-                    <form method="POST" action="" onsubmit="addProductAjax(this);return false;">
-                        {% csrf_token %}
-                    <input type="hidden" name="productId" value="{{ingredient.id}}" />
-                    <td><input type="number" name="quantity" /></td>
-                    <td><input type="submit" /></td>
-                </form>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-</div>
-
-<div class="row">
-    <div class="large-4 columns">
-        <h3>Créer une liste</h3>
-        <form method="post" action="{% url 'createList' %}">
-           <div class="fieldWrapper">
-                
-                {% csrf_token %}
-                {{ form.name.errors }}
-                <label for="name">Name:</label>
-                {{ form.name }}
-            </div>
-            <input type="submit"/>
-        </form>          
-    </div>
-    <div class="large-8 columns">
-        <h3>Ajouter des produits</h3>
-<!--         <form method="post" action="{% url 'addProductToList' %}">
-      {% csrf_token %}
-      {{ form2.as_p }}
-      <input type="submit"/>
-  </form>  -->  
-    </div>
+<div class="row fullWidth">
     
+    <div class="large-4 large-offset-2 columns">
+        {% if not myList %}
+            <h3>Créer une liste</h3>
+            <form method="post" action="{% url 'createList' %}">
+               <div class="fieldWrapper">
+                    
+                    {% csrf_token %}
+                    {{ form.name.errors }}
+                    <label for="name">Name:</label>
+                    {{ form.name }}
+                </div>
+                <input type="submit"/>
+            </form>          
+        
+        {% else %}
+            <h3>Liste actuelle : {{myList.name}}</h3>
+        {% endif %}
+    </div>
+</div>
+<div class="row fullWidth">
+    <div class="large-2 columns">Menu</div>
+    <div class="large-{% if myList %}6{% else %}10{% endif %} columns">
+        <h3>Liste des produits<h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="200">Produit</th>
+                    <th width="150">Sous-catégorie</th>
+                    <th width="150">Catégorie</th>
+                    {% if myList %}
+                        <th width="50">Quantité</th>
+                        <th width="50">Ajouter</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+               {% for ingredient in ingredients %}
+                    <tr>
+                        <td><a href="">{{ingredient.name}}</a></td>
+                        <td><a href="">{{ingredient.subCategory.name}}</a></td>
+                        <td><a href="">{{ingredient.subCategory.category.name}}</a></td>
+                        {% if myList %}
+                            <form method="POST" action="" onsubmit="addProductAjax(this);return false;">
+                                    {% csrf_token %}
+                                <input type="hidden" name="productId" value="{{ingredient.id}}" />
+                                <td><input type="number" name="quantity" /></td>
+                                <td><input class="button" type="submit" value="+" /></td>
+                            </form>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table> 
+    </div>
+    {% if myList %}
+        <div class="large-4 columns">
+            <h3>Liste actuelle</h3>
+            <table id="currentListTable">
+              <thead>
+                <tr>
+                  <th width="200">Produit</th>
+                  <th width="150">Sous-catégorie</th>
+                  <th width="150">Catégorie</th>
+                  <th width="100">Quantité</th>
+                  <th width="50">Supprimer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for products in myProduct %}
+
+                    <tr id="{{products.product.id}}">
+                        <td>{{products.product.name}}</td>
+                        <td>{{products.product.subCategory.name}}</td>
+                        <td>{{products.product.subCategory.category.name}}</td>
+                        <td>{{products.quantity}}</td>
+                        <td><button onclick="removeProductListAjax({{products.product.id}})" >X</button></td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    {% endif %}
 </div>
 
-<div class="row">
-<h3>Liste actuelle</h3>
-<table id="currentListTable">
-  <thead>
-    <tr>
-      <th width="200">Produit</th>
-      <th width="150">Sous-catégorie</th>
-      <th width="150">Catégorie</th>
-      <th width="150">Quantité</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for products in myProduct %}
-
-        <tr id="{{products.product.id}}">
-            <td>{{products.product.name}}</td>
-            <td>{{products.product.subCategory.name}}</td>
-            <td>{{products.product.subCategory.category.name}}</td>
-            <td>{{products.quantity}}</td>
-        </tr>
-    {% endfor %}
-  </tbody>
-</table>
-</div> 
 {% endblock %}
+
 {% block javascripts %}
 {{ block.super }}
-<script>
+
+<script type="text/javascript">
+
 function addProductAjax(product) {
+    $.ajax({
+        url : "{%url 'addProductToList' %}",
+        type : "POST",
+        dataType: "json",
+        data : {
+            productId : product.productId.value,
+            quantity : product.quantity.value,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success : function(data) {
+
+            if(data.state == 'error'){
+                $('#rowTop').html('<div data-alert class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+                
+            }
+            else{
+                $find = false
+                $('#rowTop').html('<div data-alert class="success alert-box radius">Produit ajouté<a href="#" class="close">&times;</a></div>');
+                $table = $("#currentListTable")
+                $('#currentListTable tr').each(function(){
+                    $row = $(this);
+                    
+                    if($row[0].id==data.productId){
+                        $olderCell= $row.find('td').eq(3);
+                        $olderCell.html(parseInt($olderCell.html())+parseInt(data.quantity));
+                        $find = true;
+
+                    }
+                });
+                if(!$find){
+                    
+                    $('#currentListTable > tbody:last-child').prepend('<tr id='+data.productId+'><td>'+data.name+'</td><td>'+data.subCategory+'</td><td>'+data.category+'</td><td>'+data.quantity+'</td><td><button onclick="removeProductListAjax('+data.productId+')" >X</button></td></tr>');
+                }
+                
+            }
+            $(document).foundation();
+            
+        },
+        error : function(data) {
+            $('#rowTop').html('<div data-alert class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+            $(document).foundation('alert', 'reflow');
+            
+        }
+    });
+    return false;
+};
+function removeProductListAjax(productId) {
         $.ajax({
-            url : "{%url 'addProductToList' %}",
-            type : "POST",
+            url : "{%url 'removeProductList' %}",
+            type : "GET",
             dataType: "json",
             data : {
-                productId : product.productId.value,
-                quantity : product.quantity.value,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
+                productId : productId
             },
             success : function(data) {
+
                 if(data.state == 'error'){
-                    $('#rowTop').prepend('<div class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+                    $('#rowTop').html('<div data-alert class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+                    
                 }
                 else{
-                    $find = false
-                    $('#rowTop').prepend('<div class="success alert-box radius">Produit ajouté<a href="#" class="close">&times;</a></div>');
-                    $table = $("#currentListTable")
-                    $('#currentListTable tr').each(function(){
-                        $row = $(this);
-                        
-                        if($row[0].id==data.productId){
-                            $olderCell= $row.find('td').eq(3);
-                            $olderCell.html(parseInt($olderCell.html())+parseInt(data.quantity));
-                            $find = true;
-
-                        }
-                    });
-                    if(!$find){
-                        
-                        $('#currentListTable > tbody:last-child').append('<tr id='+data.productId+'><td>'+data.name+'</td><td>'+data.subCategory+'</td><td>'+data.category+'</td><td>'+data.quantity+'</td></tr>');
-                    }
+                    $('#rowTop').html('<div data-alert class="success alert-box radius">Produit retiré<a href="#" class="close">&times;</a></div>');
+                    $row = document.getElementById(data.productId);
+                    $row.parentNode.removeChild($row);
                 }
+                $(document).foundation();
+                
             },
             error : function(data) {
-                $('#rowTop').prepend('<div class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+                $('#rowTop').html('<div data-alert class="warning alert-box radius">'+data.errorMessage+'<a href="#" class="close">&times;</a></div>');
+                $(document).foundation('alert', 'reflow');
                 
             }
         });
         return false;
     };
+
 </script>
+
 {% endblock %}

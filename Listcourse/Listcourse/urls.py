@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^login/$','member.views.loginView', name='login'),
     url(r'^logout/$', 'member.views.logoutView', name="logout"),
     url(r'^addProductToList/$','ingredient.views.addProductToList', name='addProductToList'),
+    url(r'^removeProductList/$','ingredient.views.removeProductList', name='removeProductList'),
     url(r'^createList/$','ingredient.views.createList', name='createList'),
     url(r'^myLists/$','ingredient.views.myListsView', name='myLists'),
 
