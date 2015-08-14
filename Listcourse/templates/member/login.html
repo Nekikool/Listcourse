@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{%block content%}
+{% load static %}
+
+<div class="row-fluid" style="margin-top:50px">
+	{% for message in messages %}
+		<div data-alert class="alert-box {{message.tags}} radius">
+			{{message}}
+		  <a href="#" class="close">&times;</a>
+		</div>
+	{% endfor %}
+	<div class="span4 offset5">
+		{% if user.is_authenticated %}
+			<h3> Déjà connecté </h3>
+		{% else %}
+			<h3>Connexion</h3>
+		{% endif %}
+	
+		
+		<form method="post" action=".">
+		    {% csrf_token %}
+		    {{ form.as_p }}
+		    <input type="submit"/>
+		</form>
+		
+	</div>
+</div>
+{% endblock %}
