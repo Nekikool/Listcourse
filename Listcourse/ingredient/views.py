@@ -38,18 +38,33 @@ def createList(request):
         form = CreateListForm(request.POST)
         if form.is_valid():
             #Si on avait une liste en cours, on la set en inutilisé
-            if List.objects.filter(pk=request.session.get('currentList',-1)).exists():
-                oldList = List.objects.get(pk=request.session.get('currentList'))
-                oldList.used = 0
+            if List.objects.filter(user=request.user).filter(used=True).exists():
+                oldList = List.objects.filter(user=request.user).filter(used=True)[0]
+                oldList.used = False
                 oldList.save()
             currentList = form.save(commit=False)
             currentList.user = request.user
             currentList.save()
-            messages.success(request, request.session.get('currentList'))
-            request.session['currentList'] = currentList.id
+            messages.success(request, "Votre liste a bien été créée")
         else:
             messages.warning(request, 'Une erreur s\'est produite')
 
+    return redirect(reverse(listView))
+
+
+
+#save current list
+def saveCurrentList(request, listId):
+    if List.objects.filter(user=request.user).filter(used=True).exists():
+        myList = List.objects.filter(user=request.user).filter(used=True)[0]
+        if int(listId) == int(myList.id):
+            myList.used = False
+            myList.save()
+            messages.success(request, "Votre liste a bien été sauvegardée")
+        else:
+            messages.warning(request, "Une erreur est survenue")   
+    else:
+            messages.warning(request, "Une erreur est survenue")   
     return redirect(reverse(listView))
 
 # Ajout d'un produit à sa liste

@@ -2,98 +2,103 @@
 {% load static %}
 {% block content %}
 
-<div class="row fullWidth" id="rowTop">
-{% for message in messages %}
-        <div data-alert class="alert-box {{message.tags}} radius">
-            {{message}}
-          <a href="#" class="close">&times;</a>
-        </div>
-    {% endfor %}
-</div>
-<div class="row fullWidth">
-    
-    <div class="large-4 large-offset-2 columns">
-        {% if not myList %}
-            <h3>Créer une liste</h3>
-            <form method="post" action="{% url 'createList' %}">
-               <div class="fieldWrapper">
-                    
-                    {% csrf_token %}
-                    {{ form.name.errors }}
-                    <label for="name">Name:</label>
-                    {{ form.name }}
-                </div>
-                <input type="submit"/>
-            </form>          
-        
-        {% else %}
-            <h3>Liste actuelle : {{myList.name}}</h3>
-        {% endif %}
-    </div>
-</div>
-<div class="row fullWidth">
-    <div class="large-2 columns">Menu</div>
-    <div class="large-{% if myList %}6{% else %}10{% endif %} columns">
-        <h3>Liste des produits<h3>
-        <table>
-            <thead>
-                <tr>
-                    <th width="200">Produit</th>
-                    <th width="150">Sous-catégorie</th>
-                    <th width="150">Catégorie</th>
-                    {% if myList %}
-                        <th width="50">Quantité</th>
-                        <th width="50">Ajouter</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-               {% for ingredient in ingredients %}
-                    <tr>
-                        <td><a href="">{{ingredient.name}}</a></td>
-                        <td><a href="">{{ingredient.subCategory.name}}</a></td>
-                        <td><a href="">{{ingredient.subCategory.category.name}}</a></td>
-                        {% if myList %}
-                            <form method="POST" action="" onsubmit="addProductAjax(this);return false;">
-                                    {% csrf_token %}
-                                <input type="hidden" name="productId" value="{{ingredient.id}}" />
-                                <td><input type="number" name="quantity" /></td>
-                                <td><input class="button" type="submit" value="+" /></td>
-                            </form>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table> 
-    </div>
-    {% if myList %}
-        <div class="large-4 columns">
-            <h3>Liste actuelle</h3>
-            <table id="currentListTable">
-              <thead>
-                <tr>
-                  <th width="200">Produit</th>
-                  <th width="150">Sous-catégorie</th>
-                  <th width="150">Catégorie</th>
-                  <th width="100">Quantité</th>
-                  <th width="50">Supprimer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for products in myProduct %}
 
-                    <tr id="{{products.product.id}}">
-                        <td>{{products.product.name}}</td>
-                        <td>{{products.product.subCategory.name}}</td>
-                        <td>{{products.product.subCategory.category.name}}</td>
-                        <td>{{products.quantity}}</td>
-                        <td><button onclick="removeProductListAjax({{products.product.id}})" >X</button></td>
-                    </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+<div class="row fullWidth">
+    {% include 'menu.html' %}
+    <div class="large-10 columns">
+        <div class="row fullWidth" id="rowTop">
+        {% for message in messages %}
+                <div data-alert class="alert-box {{message.tags}} radius">
+                    {{message}}
+                  <a href="#" class="close">&times;</a>
+                </div>
+            {% endfor %}
         </div>
-    {% endif %}
+        <div class="row fullWidth">
+            <div class="large-4 columns">
+                {% if not myList %}
+                    <h3>Créer une liste</h3>
+                    <form method="post" action="{% url 'createList' %}">
+                       <div class="fieldWrapper">
+                            
+                            {% csrf_token %}
+                            {{ form.name.errors }}
+                            <label for="name">Name:</label>
+                            {{ form.name }}
+                        </div>
+                        <input type="submit"/>
+                    </form>          
+                
+                {% else %}
+                    <h3>Liste actuelle : {{myList.name}}</h3>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row fullWidth">
+            <div class="large-{% if myList %}7{% else %}12{% endif %} columns">
+                <h3>Liste des produits</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="200">Produit</th>
+                            <th width="150">Sous-catégorie</th>
+                            <th width="150">Catégorie</th>
+                            {% if myList %}
+                                <th width="50">Quantité</th>
+                                <th width="50">Ajouter</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {% for ingredient in ingredients %}
+                            <tr>
+                                <td><a href="">{{ingredient.name}}</a></td>
+                                <td><a href="">{{ingredient.subCategory.name}}</a></td>
+                                <td><a href="">{{ingredient.subCategory.category.name}}</a></td>
+                                {% if myList %}
+                                    <form method="POST" action="" onsubmit="addProductAjax(this);return false;">
+                                            {% csrf_token %}
+                                        <input type="hidden" name="productId" value="{{ingredient.id}}" />
+                                        <td><input type="number" name="quantity" value="1" /></td>
+                                        <td><input class="button" type="submit" value="+" /></td>
+                                    </form>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+            {% if myList %}
+                <div class="large-5 columns">
+                    <h3>Liste actuelle</h3>
+                    <table id="currentListTable">
+                      <thead>
+                        <tr>
+                          <th width="200">Produit</th>
+                          <th width="150">Sous-catégorie</th>
+                          <th width="150">Catégorie</th>
+                          <th width="100">Quantité</th>
+                          <th width="50">Supprimer</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for products in myProduct %}
+
+                            <tr id="{{products.product.id}}">
+                                <td>{{products.product.name}}</td>
+                                <td>{{products.product.subCategory.name}}</td>
+                                <td>{{products.product.subCategory.category.name}}</td>
+                                <td>{{products.quantity}}</td>
+                                <td><button onclick="removeProductListAjax({{products.product.id}})" >X</button></td>
+                            </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <a class="button info" href="{% url 'saveCurrentList' myList.id %}">Sauvegarder votre liste</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}
