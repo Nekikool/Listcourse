@@ -1,0 +1,16 @@
+{% block menu %} 
+<div class="large-2 columns">
+    <h4>Menu</h4>
+    <ul>
+        <li>
+            <a href="{% url 'myLists' %}">Mes listes</a>
+        </li>
+        <li>
+            <a href="{% url 'liste' %}">Créer sa liste</a>
+        </li>
+        <li>
+        	<a href="{% url 'logout' %}">Déconnexion</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
