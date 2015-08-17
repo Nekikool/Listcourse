@@ -20,13 +20,10 @@ def loginView(request):
                 if not User.objects.filter(username=user_name).exists():
                     messages.warning(request, "Vous n'existez pas")
                 else:
-                    messages.success(request, "Bravo")
-                    return redirect('accueil')
-               
-        
+                    messages.success(request, "Hello ! ")
+                    return redirect('liste')
             else:
                 messages.warning(request, "Invalide")
-
     else:
         form = LoginForm()
 
