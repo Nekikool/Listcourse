@@ -1,4 +1,4 @@
-{% include 'base.html' %}
+{% extends 'base.html' %}
 
 {% load static %}
 {% block content %}
@@ -6,7 +6,15 @@
 <div class="row fullWidth">
     {% include 'menu.html' %}
     <div class="large-10 columns">
-		<h3>Listes actuelles</h3>
+		<h3>Listes enregistrées</h3>
+		<div class="row fullWidth" id="rowTop">
+        {% for message in messages %}
+                <div data-alert class="alert-box {{message.tags}} radius">
+                    {{message}}
+                  <a href="#" class="close">&times;</a>
+                </div>
+            {% endfor %}
+        </div>
 		{% for myList in myLists %}
 			<h4>{{myList.name}}, créée le {{myList.date}}</h4>
 			<table>
@@ -33,7 +41,11 @@
 			    {% endfor %}
 			  </tbody>
 			</table>
+			<a href="{% url 'deleteList' myList.id %}" class="button alert">Supprimer</a>
 		{% endfor %}
 	</div> 
 </div>
+{% endblock %}
+{% block javascripts %}
+	{{ block.super }}
 {% endblock %}

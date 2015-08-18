@@ -9,14 +9,15 @@ from django.core.urlresolvers import reverse
 import json
 from django.core import serializers
 
-############## Page d'accueil ##############
+############## Useful function ##############
 
-def home(request):
-	categories = Category.objects.all()
-	sousCategories = SubCategory.objects.all()
+#Get current List
+def getCurrentList(request):
+    myList = None
+    if List.objects.filter(user=request.user).filter(used=True).exists():
+        myList = List.objects.filter(user=request.user).filter(used=True)[0]
 	
-
-	return render(request, 'ingredient/home.html', locals())
+	return myList
 
 ##########################################	
 
@@ -27,8 +28,8 @@ def listView(request):
     ingredients = Product.objects.all()
     form = CreateListForm()
     if request.user.is_authenticated():
-        if List.objects.filter(user=request.user).filter(used=True).exists():
-            myList = List.objects.filter(user=request.user).filter(used=True)[0]
+        myList = getCurrentList(request)
+        if myList is not None:
             myProduct = ProductInList.objects.filter(listUser = myList)
 	return render(request, 'ingredient/listView.html',locals())
 
@@ -38,8 +39,8 @@ def createList(request):
         form = CreateListForm(request.POST)
         if form.is_valid():
             #Si on avait une liste en cours, on la set en inutilisé
-            if List.objects.filter(user=request.user).filter(used=True).exists():
-                oldList = List.objects.filter(user=request.user).filter(used=True)[0]
+            oldList = getCurrentList(request)
+            if oldList is not None:
                 oldList.used = False
                 oldList.save()
             currentList = form.save(commit=False)
@@ -52,11 +53,10 @@ def createList(request):
     return redirect(reverse(listView))
 
 
-
 #save current list
 def saveCurrentList(request, listId):
-    if List.objects.filter(user=request.user).filter(used=True).exists():
-        myList = List.objects.filter(user=request.user).filter(used=True)[0]
+    myList = getCurrentList(request)
+    if myList is not None:
         if int(listId) == int(myList.id):
             myList.used = False
             myList.save()
@@ -66,6 +66,7 @@ def saveCurrentList(request, listId):
     else:
             messages.warning(request, "Une erreur est survenue")   
     return redirect(reverse(listView))
+
 
 # Ajout d'un produit à sa liste
 def addProductToList(request):
@@ -136,3 +137,15 @@ def myListsView(request):
                 productInlist.append(ProductInList.objects.filter(listUser=myList))
 
     return render(request, 'ingredient/myLists.html', locals())
+
+
+def deleteList(request, listId):
+    if request.user.is_authenticated() and List.objects.filter(user=request.user).filter(id=listId).exists():
+        try:
+            List.objects.get(user=request.user, id=listId).delete()
+            messages.success(request, "La liste a bien été supprimée")
+        except:
+            messages.warning(request, 'Une erreur s\'est produite')
+    else:
+        messages.warning(request, 'Une erreur s\'est produite')
+    return redirect(reverse(myListsView)) 
