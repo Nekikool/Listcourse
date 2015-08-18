@@ -42,6 +42,7 @@
 			  </tbody>
 			</table>
 			<a href="{% url 'changeList' myList.id %}" class="button info">Choisir cette liste</a>
+			<a href="{% url 'fusionList' myList.id %}" class="button info">Fusionner cette liste</a>
 			<a href="{% url 'deleteList' myList.id %}" class="button alert">Supprimer</a>
 
 		{% endfor %}

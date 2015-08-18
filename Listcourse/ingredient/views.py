@@ -138,7 +138,7 @@ def myListsView(request):
 
     return render(request, 'ingredient/myLists.html', locals())
 
-
+#Remove the select lsit
 def deleteList(request, listId):
     if request.user.is_authenticated() and List.objects.filter(user=request.user).filter(id=listId).exists():
         try:
@@ -150,6 +150,7 @@ def deleteList(request, listId):
         messages.warning(request, 'Une erreur s\'est produite')
     return redirect(reverse(myListsView)) 
 
+#Change the current list
 def changeList(request, listId):
     if List.objects.filter(user=request.user).filter(id=listId).exists():
         try:
@@ -166,4 +167,30 @@ def changeList(request, listId):
             messages.warning(request, 'Une erreur s\'est produite')
     else:
         messages.warning(request, 'Une erreur s\'est produite')
+    return redirect(reverse(myListsView)) 
+
+
+#add products of the given list in the current list
+def fusionList(request, listId):
+    if List.objects.filter(user=request.user).filter(id=listId).exists():
+        currentList = getCurrentList(request)
+        if currentList is not None and ProductInList.objects.filter(listUser_id=listId).exists():
+            try:
+                productsList = ProductInList.objects.filter(listUser_id=listId)
+                for productList in productsList:
+                    if ProductInList.objects.filter(listUser=currentList.id).filter(product=productList.product).exists():
+                        currentProductList = ProductInList.objects.filter(listUser=currentList.id).filter(product=productList.product)[0]
+                        currentProductList.quantity = int(productList.quantity) + int(currentProductList.quantity)
+                        currentProductList.save()
+                    else:
+                        ProductInList.objects.create(product=productList.product, quantity=productList.quantity, listUser=currentList)
+                messages.success(request, "La liste a bien été fusionnée")
+            except:
+                messages.warning(request, 'Une erreur s\'est produite')
+        else:
+            messages.warning(request, 'Une erreur s\'est produite')
+
+    else:
+        messages.warning(request, "Cette liste ne vous appartient pas")
+
     return redirect(reverse(myListsView)) 
