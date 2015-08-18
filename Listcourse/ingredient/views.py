@@ -149,3 +149,21 @@ def deleteList(request, listId):
     else:
         messages.warning(request, 'Une erreur s\'est produite')
     return redirect(reverse(myListsView)) 
+
+def changeList(request, listId):
+    if List.objects.filter(user=request.user).filter(id=listId).exists():
+        try:
+            oldList = getCurrentList(request)
+            if oldList is not None:
+                oldList.used = False
+                oldList.save()
+            newList = List.objects.filter(user=request.user).filter(id=listId)[0]
+            newList.used = True
+            newList.save()
+
+            messages.success(request, "Votre liste actuelle est : "+newList.name)
+        except:
+            messages.warning(request, 'Une erreur s\'est produite')
+    else:
+        messages.warning(request, 'Une erreur s\'est produite')
+    return redirect(reverse(myListsView)) 

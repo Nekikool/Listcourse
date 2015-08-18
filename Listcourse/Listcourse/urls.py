@@ -19,6 +19,7 @@ urlpatterns = [
 
     url(r'^myLists/$','ingredient.views.myListsView', name='myLists'),
     url(r'^myLists/deleteList/(?P<listId>[0-9]+)/$','ingredient.views.deleteList', name='deleteList'),
+    url(r'^myLists/changeList/(?P<listId>[0-9]+)/$','ingredient.views.changeList', name='changeList'),
     
 
 
