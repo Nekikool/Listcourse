@@ -95,6 +95,13 @@
                       </tbody>
                     </table>
                     <a class="button info" href="{% url 'saveCurrentList' myList.id %}">Sauvegarder votre liste</a>
+                    <div>
+                        <form action="{% url 'addCustomProduct' %}" method="POST">
+                            {% csrf_token %}
+                            {{ productForm.as_p }}
+                            <input class="button" type="submit" value="Ajouter un produit personnalisé" />
+                        </form>
+                    </div>
                 </div>
             {% endif %}
         </div>

@@ -17,6 +17,7 @@ class Product(models.Model):
    description = models.TextField(null=True)
    subCategory = models.ForeignKey(SubCategory, primary_key=False)
    perso = models.BooleanField(default=True)
+   user = models.ForeignKey(User, null=True)
 
 class List(models.Model):
 	name = models.CharField(max_length=255, null=True)

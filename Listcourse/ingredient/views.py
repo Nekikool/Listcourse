@@ -2,7 +2,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from ingredient.models import Category, SubCategory, Product, List, ProductInList
-from ingredient.forms import AddProductToListForm,CreateListForm
+from ingredient.forms import AddProductToListForm,CreateListForm,AddCustomProductForm
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
@@ -27,6 +27,7 @@ def listView(request):
 	
     ingredients = Product.objects.all()
     form = CreateListForm()
+    productForm = AddCustomProductForm()
     if request.user.is_authenticated():
         myList = getCurrentList(request)
         if myList is not None:
@@ -122,6 +123,27 @@ def removeProductList(request):
             response_dict.update({'state':'error','errorMessage': 'VUne erreur s\'est produite'})  
     return HttpResponse(json.dumps(response_dict), content_type='application/json')
 
+
+# Add a custom product in the main list and in the user's current list
+def addCustomProduct(request):
+    if request.method == 'POST':
+        form = AddCustomProductForm(request.POST)
+        if form.is_valid():
+            try:
+                product = form.save()
+                product.perso = True
+                product.user=request.user
+                product.save()
+                currentList = getCurrentList(request)
+                if currentList is not None:
+                    ProductInList.objects.create(product=product, quantity=1, listUser=currentList)
+                messages.success(request, "Votre produit a bien été ajouté")
+            except:
+                messages.warning(request, 'Une erreur s\'est produite')
+        else:
+            messages.warning(request, 'Une erreur s\'est produite')
+    return redirect(reverse(listView))
+            #Si on avait une liste en cours, on la set en inutilisé 
 
 #######################################################
 

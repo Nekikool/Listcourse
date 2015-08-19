@@ -1,6 +1,7 @@
+# -*- coding: UTF-8 -*-
 from django import forms
-from django.forms import ModelForm
-from ingredient.models import List,ProductInList
+from django.forms import ModelForm,Textarea
+from ingredient.models import List,ProductInList, Product
 
 
 class AddProductToListForm(ModelForm):
@@ -16,6 +17,24 @@ class CreateListForm(ModelForm):
     class Meta:
         model = List
         fields = ['name']
+
+
+class AddCustomProductForm(ModelForm):
+    class Meta:
+        model = Product
+        exclude = ['user','perso']
+        widgets = {
+            'description': Textarea(attrs={'cols': 40, 'rows': 5}),
+        }
+        labels = {
+            'name': ('Nom du produit'),
+            'subCategory': ('Sous-catégorie'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AddCustomProductForm, self).__init__(*args, **kwargs)
+        self.fields['subCategory'].label_from_instance = lambda obj: "%s" % (obj.name)
+
 
 # class AddProductToListForm(forms.Form):
 #     productId = forms.CharField(required=True)
