@@ -47,6 +47,7 @@
                                 <th width="50">Quantité</th>
                                 <th width="50">Ajouter</th>
                             {% endif %}
+                            <th width="50">Supprimer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,6 +63,9 @@
                                         <td><input type="number" name="quantity" value="1" /></td>
                                         <td><input class="button" type="submit" value="+" /></td>
                                     </form>
+                                {% endif %}
+                                {% if ingredient.perso %}
+                                    <td><a class="button" href="{% url 'deleteCustomProduct' ingredient.id %}">X</a></td>
                                 {% endif %}
                             </tr>
                         {% endfor %}

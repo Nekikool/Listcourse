@@ -142,8 +142,19 @@ def addCustomProduct(request):
                 messages.warning(request, 'Une erreur s\'est produite')
         else:
             messages.warning(request, 'Une erreur s\'est produite')
+    return redirect(reverse(listView)) 
+
+
+def deleteCustomProduct(request,productId):
+    if request.user.is_authenticated() and Product.objects.filter(perso=True).filter(user=request.user).filter(id=productId).exists():
+        try:
+            Product.objects.filter(perso=True).filter(user=request.user).filter(id=productId)[0].delete()
+            messages.success(request, "Votre produit a bien été supprimé")
+        except:
+            messages.warning(request, "Une erreur s\'est produite")
+    else:
+        messages.warning(request, 'Une erreur s\'est produite')
     return redirect(reverse(listView))
-            #Si on avait une liste en cours, on la set en inutilisé 
 
 #######################################################
 

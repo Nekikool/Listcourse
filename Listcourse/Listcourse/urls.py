@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^addProductToList/$','ingredient.views.addProductToList', name='addProductToList'),
     url(r'^addCustomProduct/$','ingredient.views.addCustomProduct', name='addCustomProduct'),
     url(r'^removeProductList/$','ingredient.views.removeProductList', name='removeProductList'),
+    url(r'^liste/deleteCustomProduct/(?P<productId>[0-9]+)/$','ingredient.views.deleteCustomProduct', name='deleteCustomProduct'),
     url(r'^createList/$','ingredient.views.createList', name='createList'),
     url(r'^liste/saveCurrentList/(?P<listId>[0-9]+)/$','ingredient.views.saveCurrentList', name='saveCurrentList'),
 
